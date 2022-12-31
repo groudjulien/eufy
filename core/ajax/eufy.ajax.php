@@ -24,7 +24,6 @@ try {
     }
 	
     if (init('action') == 'sync') {
-      echo "Start sync";
 	    $params = array('command' => 'getDevices');
 	    eufy::sendToDaemon($params);
 	    $params = array('command' => 'getStations');

@@ -107,7 +107,6 @@ class eufy extends eqLogic {
     $params['apikey'] = jeedom::getApiKey(__CLASS__);
     $payLoad = json_encode($params);
     log::add(__CLASS__, 'debug', "sendToDaemon: " . $payLoad);
-    echo "sendToDaemon: " . $payLoad;
 
     $socket = socket_create(AF_INET, SOCK_STREAM, 0);
     socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '60600'));
@@ -140,18 +139,23 @@ class eufy extends eqLogic {
     log::add(__CLASS__, 'debug', $message);
     
     $jsonObjArray = json_decode($message, true);
+    log::add(__CLASS__, 'info', 'JGROUD STEP 2');
     $jsonObj = json_decode($message);
+    log::add(__CLASS__, 'info', 'JGROUD STEP 3');
 
     $deviceId = 0;
+    log::add(__CLASS__, 'info', 'JGROUD STEP 4');
 
     $serialStations = [];
+    log::add(__CLASS__, 'info', 'JGROUD STEP 5');
     foreach($jsonObj as $device)
     {
+      log::add(__CLASS__, 'info', 'JGROUD STEP 6');
+      log::add(__CLASS__, 'debug', 'debug device JGROUD');
+      log::add(__CLASS__, 'debug', 'Test device (' . $device->name . ' - ' . $device->serialNumber . ')');
       $eqLogic = eqLogic::byLogicalId($device->serialNumber, __CLASS__);
-      echo 'Test device (' . $device->name . ' - ' . $device->serialNumber . ')';
       
       if (!is_object($eqLogic)) {
-        echo 'Creating (' . $device->name . ' - ' . $device->serialNumber . ')';
         log::add(__CLASS__, 'info', 'Creating (' . $device->name . ' - ' . $device->serialNumber . ')');
         $eqLogic = new self();
         $eqLogic->setLogicalId($device->serialNumber);

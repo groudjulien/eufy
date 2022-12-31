@@ -12,21 +12,17 @@ try {
         die();
     }
     $result = json_decode(file_get_contents("php://input"), true);
-    echo 'results : ' . json_encode($result);
     if (!is_array($result)) {
         die();
     }
 
     if(isset($result['type'])){
-        echo "received results " . $result['type'];
         if ($result['type'] == 'stations') {
-            echo 'Stations received from daemon';
             log::add('eufy', 'info', 'Stations received from daemon');
             eufy::syncDevices($result['stations'],'Station');
         }
 
         if ($result['type'] == 'devices') {
-            echo 'Devices received from daemon';
             log::add('eufy', 'info', 'Devices received from daemon');
             eufy::syncDevices($result['devices'],'Camera');
         } 
