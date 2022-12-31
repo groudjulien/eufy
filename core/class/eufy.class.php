@@ -100,18 +100,19 @@ class eufy extends eqLogic {
   }
 
   public static function sendToDaemon($params) {
-	$deamon_info = self::deamon_info();
-	if ($deamon_info['state'] != 'ok') {
-		throw new Exception("Le démon n'est pas démarré");
-	}
-	$params['apikey'] = jeedom::getApiKey(__CLASS__);
-        $payLoad = json_encode($params);
-	log::add(__CLASS__, 'debug', "sendToDaemon: " . $payLoad);
+    $deamon_info = self::deamon_info();
+    if ($deamon_info['state'] != 'ok') {
+      throw new Exception("Le démon n'est pas démarré");
+    }
+    $params['apikey'] = jeedom::getApiKey(__CLASS__);
+    $payLoad = json_encode($params);
+    log::add(__CLASS__, 'debug', "sendToDaemon: " . $payLoad);
+    echo "sendToDaemon: " . $payLoad;
 
-	$socket = socket_create(AF_INET, SOCK_STREAM, 0);
-	socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '60600'));
-	socket_write($socket, $payLoad, strlen($payLoad));
-	socket_close($socket);
+    $socket = socket_create(AF_INET, SOCK_STREAM, 0);
+    socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '60600'));
+    socket_write($socket, $payLoad, strlen($payLoad));
+    socket_close($socket);
   }
 
   /*
@@ -147,28 +148,31 @@ class eufy extends eqLogic {
     foreach($jsonObj as $device)
     {
       $eqLogic = eqLogic::byLogicalId($device->serialNumber, __CLASS__);
+      echo 'Test device (' . $device->name . ' - ' . $device->serialNumber . ')';
       
       if (!is_object($eqLogic)) {
+        echo 'Creating (' . $device->name . ' - ' . $device->serialNumber . ')';
         log::add(__CLASS__, 'info', 'Creating (' . $device->name . ' - ' . $device->serialNumber . ')');
         $eqLogic = new self();
         $eqLogic->setLogicalId($device->serialNumber);
        	$eqLogic->setName($device->name);
-     	$eqLogic->setEqType_name(__CLASS__);
-     	$eqLogic->setIsEnable(1);
+     	  $eqLogic->setEqType_name(__CLASS__);
+     	  $eqLogic->setIsEnable(1);
         $eqLogic->setCategory('security', 1);
 
-	if ($type == 'Station') 
-		$station = $device->serialNumber;
-	else
-		$station = $device->stationSerialNumber;
-	$eqLogic->setConfiguration('eufyType', $type); // Camera ou Station 
+        if ($type == 'Station') 
+          $station = $device->serialNumber;
+        else
+          $station = $device->stationSerialNumber;
+	      
+        $eqLogic->setConfiguration('eufyType', $type); // Camera ou Station 
         $eqLogic->setConfiguration('eufyName', $device->name); // nom app Eufy
         $eqLogic->setConfiguration('model', $device->model);
         $eqLogic->setConfiguration('serialNumber', $device->serialNumber);
         $eqLogic->setConfiguration('stationSerialNumber', $station);
         $eqLogic->setConfiguration('hardwareVersion', $device->hardwareVersion);
-	$eqLogic->setConfiguration('softwareVersion', $device->softwareVersion);
-	$eqLogic->save();
+	      $eqLogic->setConfiguration('softwareVersion', $device->softwareVersion);
+	      $eqLogic->save();
 
         try{
           $commandsConfig = eufy::getCommandsFileContent(__DIR__ . '/../config/' . $device->model . '.json');
